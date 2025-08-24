@@ -1,11 +1,57 @@
 <!doctype html>
 <html>
-  <head>
-    <meta http-equiv="refresh" content="0; url=https://madiera.app.n8n.cloud/form/b0c247d1-2b20-43db-9bb9-7c921d747fda" />
-    <meta charset="utf-8" />
-    <title>Redirecting…</title>
-  </head>
-  <body>
-    <p>Redirecting to the form… <a href="https://madiera.app.n8n.cloud/form/b0c247d1-2b20-43db-9bb9-7c921d747fda">Click here</a>.</p>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>LinkedIn Scraper</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 40px auto; }
+    input, button { padding: 10px; font-size: 16px; }
+    form { display: grid; gap: 12px; }
+    pre { white-space: pre-wrap; background: #f6f8fa; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Scrape a LinkedIn Post</h2>
+
+  <form id="f">
+    <input type="url" name="postUrl" placeholder="https://www.linkedin.com/posts/..." required />
+    <label><input type="checkbox" name="addComments" checked> Include comments</label>
+    <label><input type="checkbox" name="addReactions" checked> Include reactions</label>
+    <button type="submit">Run</button>
+  </form>
+
+  <pre id="out"></pre>
+
+  <script>
+    // ⇩⇩ Use your n8n PRODUCTION webhook URL (not the test URL)
+    const WEBHOOK = "https://madiera.app.n8n.cloud/webhook/linkedin-scraper";
+
+    const f = document.getElementById('f');
+    const out = document.getElementById('out');
+
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      out.textContent = "Starting…";
+      const data = new FormData(f);
+      const body = {
+        postUrl: data.get('postUrl'),
+        addComments: !!data.get('addComments'),
+        addReactions: !!data.get('addReactions'),
+      };
+      try {
+        const res = await fetch(WEBHOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        // Your n8n Webhook Response might return HTML or JSON.
+        // If JSON, swap to: const result = await res.json();
+        const text = await res.text();
+        out.textContent = text;
+      } catch (err) {
+        out.textContent = "Failed: " + err.message;
+      }
+    });
+  </script>
+</body>
 </html>
