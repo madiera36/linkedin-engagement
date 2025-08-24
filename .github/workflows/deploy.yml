@@ -2,8 +2,8 @@ name: Deploy Vite React to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]   # run on every push to main
-  workflow_dispatch:        # plus a manual "Run workflow" button in Actions tab
+    branches: [ "main" ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,25 +12,31 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest     # GitHub gives you a Linux VM
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4     # 1) download your repo code
-      - uses: actions/setup-node@v4   # 2) install Node
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-      - run: npm ci                    # 3) install deps (from package-lock.json)
-      - run: npm run build             # 4) build the site (Vite → dist/)
-      - uses: actions/upload-pages-artifact@v3  # 5) pack dist/ for Pages
+          # ❌ Remove cache:'npm' because it needs a lockfile
+
+      # ✅ Use npm install since there's no lockfile yet
+      - run: npm install --no-audit --no-fund
+
+      # Build (Vite will create ./dist)
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
   deploy:
-    needs: build                 # wait for build job to finish
+    needs: build
     runs-on: ubuntu-latest
     environment:
-      name: github-pages         # special Pages environment
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4  # publish the artifact to GitHub Pages
+        uses: actions/deploy-pages@v4
