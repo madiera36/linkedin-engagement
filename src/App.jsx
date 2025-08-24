@@ -11,7 +11,7 @@ export default function App() {
       <noscript>
         <p>
           If you are not redirected,{" "}
-          <a href="https://YOUR-N8N-FORM-URL">click here</a>.
+          <a href="https://madiera.app.n8n.cloud/form/b0c247d1-2b20-43db-9bb9-7c921d747fda">click here</a>.
         </p>
       </noscript>
     </div>
