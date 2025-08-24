@@ -14,25 +14,26 @@
 <body>
   <h2>Scrape a LinkedIn Post</h2>
 
+  <!-- IMPORTANT: action is "#" so the browser does NOT navigate away -->
   <form id="f" method="post" action="#" novalidate>
     <input type="url" name="postUrl" id="postUrl"
            placeholder="https://www.linkedin.com/posts/..." required />
-    <label><input type="checkbox" name="addComments" id="addComments" checked> Include comments</label>
-    <label><input type="checkbox" name="addReactions" id="addReactions" checked> Include reactions</label>
+    <label><input type="checkbox" id="addComments" checked> Include comments</label>
+    <label><input type="checkbox" id="addReactions" checked> Include reactions</label>
     <button type="submit">Run</button>
   </form>
 
   <pre id="out"></pre>
 
   <script>
-    // ⬇️ Put your n8n PRODUCTION webhook URL here
-    const WEBHOOK = "https://madiera.app.n8n.cloud/webhook/linkedin-scraper";
+    // ⬇️ Replace with your n8n PRODUCTION webhook URL (not the test URL)
+    const WEBHOOK = "https://madiera.app.n8n.cloud/webhook/linkedin-engagement";
 
     const f   = document.getElementById('f');
     const out = document.getElementById('out');
 
     f.addEventListener('submit', async (e) => {
-      e.preventDefault();                    // ← stops browser doing a GET submit
+      e.preventDefault(); // prevent the default GET submit
       out.textContent = "Starting…";
 
       const body = {
@@ -42,14 +43,12 @@
       };
 
       try {
-        const res  = await fetch(WEBHOOK, {
+        const res = await fetch(WEBHOOK, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-
-        // Your n8n response might be JSON or HTML
-        const text = await res.text();
+        const text = await res.text(); // if you return JSON, use await res.json()
         out.textContent = text;
       } catch (err) {
         out.textContent = "Failed: " + err.message;
