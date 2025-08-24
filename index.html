@@ -3,49 +3,52 @@
 <head>
   <meta charset="utf-8" />
   <title>LinkedIn Scraper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 40px auto; }
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; }
     input, button { padding: 10px; font-size: 16px; }
     form { display: grid; gap: 12px; }
-    pre { white-space: pre-wrap; background: #f6f8fa; padding: 12px; border-radius: 8px; }
+    pre { white-space: pre-wrap; background:#f6f8fa; padding:12px; border-radius:8px; }
   </style>
 </head>
 <body>
   <h2>Scrape a LinkedIn Post</h2>
 
-  <form id="f">
-    <input type="url" name="postUrl" placeholder="https://www.linkedin.com/posts/..." required />
-    <label><input type="checkbox" name="addComments" checked> Include comments</label>
-    <label><input type="checkbox" name="addReactions" checked> Include reactions</label>
+  <form id="f" method="post" action="#" novalidate>
+    <input type="url" name="postUrl" id="postUrl"
+           placeholder="https://www.linkedin.com/posts/..." required />
+    <label><input type="checkbox" name="addComments" id="addComments" checked> Include comments</label>
+    <label><input type="checkbox" name="addReactions" id="addReactions" checked> Include reactions</label>
     <button type="submit">Run</button>
   </form>
 
   <pre id="out"></pre>
 
   <script>
-    // ⇩⇩ Use your n8n PRODUCTION webhook URL (not the test URL)
+    // ⬇️ Put your n8n PRODUCTION webhook URL here
     const WEBHOOK = "https://madiera.app.n8n.cloud/webhook/linkedin-scraper";
 
-    const f = document.getElementById('f');
+    const f   = document.getElementById('f');
     const out = document.getElementById('out');
 
     f.addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault();                    // ← stops browser doing a GET submit
       out.textContent = "Starting…";
-      const data = new FormData(f);
+
       const body = {
-        postUrl: data.get('postUrl'),
-        addComments: !!data.get('addComments'),
-        addReactions: !!data.get('addReactions'),
+        postUrl: document.getElementById('postUrl').value.trim(),
+        addComments: document.getElementById('addComments').checked,
+        addReactions: document.getElementById('addReactions').checked,
       };
+
       try {
-        const res = await fetch(WEBHOOK, {
+        const res  = await fetch(WEBHOOK, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-        // Your n8n Webhook Response might return HTML or JSON.
-        // If JSON, swap to: const result = await res.json();
+
+        // Your n8n response might be JSON or HTML
         const text = await res.text();
         out.textContent = text;
       } catch (err) {
